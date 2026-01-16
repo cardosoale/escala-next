@@ -71,7 +71,7 @@ export default function RosterViewer() {
                 variant={'outline'}
                 className={cn(
                   'w-300px justify-start text-left font-normal',
-                  !date && 'text-muted-foreground'
+                  !date && 'text-muted-foreground',
                 )}
               >
                 <CalendarIcon className='mr-2 h-4 w-4' />
@@ -167,7 +167,7 @@ export default function RosterViewer() {
                         : 'border-green-200 bg-green-50 dark:bg-green-950/20 print:bg-green-100 print:border-green-400',
 
                       // Fim de semana visualmente diferente apenas na tela
-                      isWeekend && 'opacity-90 print:opacity-100'
+                      isWeekend && 'opacity-90 print:opacity-100',
                     )}
                   >
                     <CardHeader className='p-3 pb-2 text-center print:p-1 print:pb-0'>
@@ -208,7 +208,7 @@ export default function RosterViewer() {
       </div>
 
       <div className='hidden print:block fixed bottom-2 w-full text-center text-[10px] text-gray-400'>
-        Gerado automaticamente - Escala 2x2
+        <p>Elaborada por Ale Cardoso, para simples consulta.</p>
       </div>
     </div>
   );
