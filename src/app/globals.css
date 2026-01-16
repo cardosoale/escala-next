@@ -129,7 +129,7 @@
 @media print {
   /* Força orientação Paisagem e margens finas */
   @page {
-    size: landscape;
+    size: portrait;
     margin: 5mm;
   }
 
