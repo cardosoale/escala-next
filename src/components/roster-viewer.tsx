@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/popover';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-// --- LÓGICA DE FERIADOS ---
+// --- LÓGICA DE FERIADOS E DATAS COMEMORATIVAS ---
 
 const getEasterDate = (year: number): Date => {
   const a = year % 19;
@@ -36,16 +36,33 @@ const getEasterDate = (year: number): Date => {
   return new Date(year, month, day);
 };
 
-// Agora retorna um MAP: 'dd/MM' => 'Nome do Feriado'
-const getHolidaysForYear = (year: number) => {
-  const easter = getEasterDate(year);
-  const carnival = subDays(easter, 47);
-  const goodFriday = subDays(easter, 2);
-  const corpusChristi = addDays(easter, 60);
+// Função para encontrar o N-ésimo dia da semana em um mês
+// Ex: Encontrar o 2º (n=2) Domingo (dayOfWeek=0) de Maio (monthIndex=4)
+const getNthDayOfMonth = (
+  year: number,
+  monthIndex: number,
+  dayOfWeek: number,
+  n: number,
+): Date => {
+  const firstDay = new Date(year, monthIndex, 1);
+  const currentDay = firstDay.getDay();
 
+  // Dias até o primeiro 'dayOfWeek' desejado
+  const daysUntilFirst = (dayOfWeek - currentDay + 7) % 7;
+
+  // Data do primeiro 'dayOfWeek'
+  let day = 1 + daysUntilFirst;
+
+  // Adiciona semanas para chegar ao N-ésimo
+  day += (n - 1) * 7;
+
+  return new Date(year, monthIndex, day);
+};
+
+const getHolidaysForYear = (year: number) => {
   const holidays = new Map<string, string>();
 
-  // Função auxiliar para facilitar a inserção
+  // Auxiliares
   const add = (date: Date, name: string) => {
     holidays.set(format(date, 'dd/MM'), name);
   };
@@ -53,13 +70,27 @@ const getHolidaysForYear = (year: number) => {
     holidays.set(dateStr, name);
   };
 
-  // Feriados Móveis
+  // 1. Feriados Móveis Baseados na Páscoa
+  const easter = getEasterDate(year);
+  const carnival = subDays(easter, 47);
+  const goodFriday = subDays(easter, 2);
+  const corpusChristi = addDays(easter, 60);
+
   add(carnival, 'Carnaval');
   add(goodFriday, 'Sexta-feira Santa');
   add(easter, 'Páscoa');
   add(corpusChristi, 'Corpus Christi');
 
-  // Feriados Fixos
+  // 2. Datas Comemorativas Móveis (Mães e Pais)
+  // Dia das Mães: 2º Domingo de Maio (Mês 4 no JS)
+  const mothersDay = getNthDayOfMonth(year, 4, 0, 2);
+  add(mothersDay, 'Dia das Mães');
+
+  // Dia dos Pais: 2º Domingo de Agosto (Mês 7 no JS)
+  const fathersDay = getNthDayOfMonth(year, 7, 0, 2);
+  add(fathersDay, 'Dia dos Pais');
+
+  // 3. Feriados Fixos
   addFixed('01/01', 'Ano Novo');
   addFixed('21/04', 'Tiradentes');
   addFixed('01/05', 'Dia do Trabalho');
@@ -101,7 +132,6 @@ export default function RosterViewer() {
 
     yearsToCheck.forEach((year) => {
       const yearHolidays = getHolidaysForYear(year);
-      // Mescla os mapas
       yearHolidays.forEach((name, dateStr) => {
         activeHolidays.set(dateStr, name);
       });
@@ -237,7 +267,7 @@ export default function RosterViewer() {
                             {dateStr}
                           </span>
 
-                          {/* Nome do Feriado em Vermelho Ghost */}
+                          {/* Nome do Feriado */}
                           {holidayName && (
                             <span className='text-[9px] md:text-[10px] text-red-500 font-medium leading-tight text-right md:text-center truncate w-full print:text-red-600 print:text-[8px] print:block'>
                               {holidayName}
